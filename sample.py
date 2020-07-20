@@ -2,7 +2,15 @@ from boa.interop.Neo.Runtime import GetTrigger, CheckWitness
 from boa.interop.Neo.Storage import GetContext, Get, Put, Delete
 from boa.interop.Neo.TriggerType import Application,Verification
 
-# Contract
+# Check whether invoker is allowed to perform operation
+def security_check():
+    owner = Get(ctx, name)
+    if owner is None:
+        return False
+    if not CheckWitness(owner):
+        return False
+
+# Contract: Pay at Shop
 def Main(operation, addr, value):
 	# Get trigger to determine interaction
 	trigger = GetTrigger()
@@ -24,15 +32,17 @@ def Main(operation, addr, value):
 			return Get(ctx, addr)
 
 		elif operation == 'add':
-      balance = Get(ctx, addr)
-      new_balance = balance + value
-      Put(ctx, addr, new_balance)
-      return new_balance
+			assert security_check()==True
+		        balance = Get(ctx, addr)
+	        	new_balance = balance + value
+	        	Put(ctx, addr, new_balance)
+	       		return new_balance
 
-    elif operation == 'remove':
-      balance = Get(ctx, addr)
-      Put(ctx, addr, balance - value)
-      return balance - value
+    		elif operation == 'remove':
+			assert security_check()
+			balance = Get(ctx, addr)
+			Put(ctx, addr, balance - value)
+			return balance - value
 
 		elif operation == 'totalSupply':
 			return totalSupply()
