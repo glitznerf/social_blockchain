@@ -41,6 +41,7 @@ contract Government {
     
     
     function distributeFunds(string memory group_) public payable {
+    //TODO: Only gov should be able to
         group = group_; 
         uint amount = msg.value;
         
